@@ -7,11 +7,21 @@ package kalmanfiltertest;
 import MyLib.MyMath.Matrix;
 import MyLib.MyMath.Quaternion;
 import MyLib.Util.MyUtil;
+import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.SerialPort;
+import gnu.io.UnsupportedCommOperationException;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,9 +44,38 @@ public class FenrirKalman {
     }
 
     public FenrirKalman() {
-        sim();
+        //sim();
+        //serial();
     }
     private void serial(){
+        try {
+            CommPortIdentifier comID = CommPortIdentifier.getPortIdentifier("COM10");
+            CommPort commPort = comID.open("kalman", 2000);
+            SerialPort port = (SerialPort)commPort;
+            
+            port.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+            
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(port.getInputStream()));
+                while(true){
+                    String line = br.readLine();
+                    System.out.println(line);
+                }
+            } catch (IOException iOException) {
+            }
+            
+            
+            
+            
+            
+        } catch (NoSuchPortException ex) {
+            Logger.getLogger(FenrirKalman.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (PortInUseException ex) {
+            Logger.getLogger(FenrirKalman.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedCommOperationException ex) {
+            Logger.getLogger(FenrirKalman.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     
