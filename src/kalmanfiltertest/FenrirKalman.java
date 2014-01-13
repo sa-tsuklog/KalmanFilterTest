@@ -67,11 +67,10 @@ public class FenrirKalman {
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("test.txt")));
 
             double squareSum=0;
-            int repeat = 10000;
+            int repeat = 3000;
 
             
             for (int i = 0; i < repeat; i++) {
-                
                 kf.predict(accel.getAccel(), gyro.getRate());
                 
                 if (i % 10 == 0) {
@@ -82,9 +81,9 @@ public class FenrirKalman {
                     kf.update(gpsVel, gpsPos, 0);
                     
                     //pos
-                    pw.println(i + " " + GAINS.KalmanFilter.positionToLambda(kf.getPos()) + " " + GAINS.KalmanFilter.positionToPhi(kf.getPos())
-                        +" "+GAINS.KalmanFilter.positionToLambda(gpsPos)+" "+GAINS.KalmanFilter.positionToPhi(gpsPos)
-                        +" "+GAINS.KalmanFilter.positionToLambda(trueState.getPosition(r, i))+" "+ GAINS.KalmanFilter.positionToPhi(trueState.getPosition(r, i)));
+                    pw.println(i + " " + GAINS.KalmanFilter.positionToLambda(kf.getPos())*earthRadius + " " + GAINS.KalmanFilter.positionToPhi(kf.getPos())*earthRadius
+                        +" "+GAINS.KalmanFilter.positionToLambda(gpsPos)*earthRadius+" "+GAINS.KalmanFilter.positionToPhi(gpsPos)*earthRadius
+                        +" "+GAINS.KalmanFilter.positionToLambda(trueState.getPosition(r, i))*earthRadius+" "+ GAINS.KalmanFilter.positionToPhi(trueState.getPosition(r, i))*earthRadius);
                     
                     //pos difference
                     //pw.println(i+" "+posDifference(kf.getPos(), trueState.getPosition(r, i))+" "+posDifference(gpsPos, trueState.getPosition(r, i)));
@@ -124,10 +123,10 @@ public class FenrirKalman {
         double spdNoiseLevel;
         
         SimGps(){
-            //noiseLevel=0.1*r;
-            noiseLevel=0;
-            //biasLevel=0.01*r;
-            biasLevel=0;
+            noiseLevel=0.1*r;
+            //noiseLevel=0;
+            biasLevel=0.05*r;
+            //biasLevel=0;
             biasTimeBeta=-0.996;
             biasDrift=getNoise(rnd, biasLevel);
             
@@ -144,9 +143,6 @@ public class FenrirKalman {
             biasDrift=getBiasNoise(rnd, biasLevel, biasDrift, biasTimeBeta);
             xpos+=biasDrift.getX();
             ypos+=biasDrift.getY();
-            
-            xpos += 100;
-            ypos += 100;
             
             return GAINS.KalmanFilter.angleToPosition(xpos/earthRadius, ypos/earthRadius, 0);
         }
@@ -171,10 +167,10 @@ public class FenrirKalman {
         Accelometer() {
             accelBase = new Quaternion(0, 0, v * v / r, -9.8);
             //accelBase= new Quaternion(0,0,v*v/r,0);
-            //noiseLevel = 0.03 * v * v / r;
-            noiseLevel = 0.00;
-            //biasLevel = 0.03 * v * v / r;
-            biasLevel = 0.0;
+            noiseLevel = 0.03 * v * v / r;
+            //noiseLevel = 0.00;
+            biasLevel = 0.03 * v * v / r;
+            //biasLevel = 0.0;
             biasTimeBeta = -0.994;
             biasDrift = getNoise(rnd, biasLevel);
         }
@@ -200,10 +196,10 @@ public class FenrirKalman {
 
         Gyro() {
             gyroBase = new Quaternion(0, 0, 0, 2 * Math.PI / 10);
-            //noiseLevel = 0.03 * 2 * Math.PI;
-            noiseLevel = 0.0;
-            //biasLevel = 0.03 * 2 * Math.PI;
-            biasLevel = 0;
+            noiseLevel = 0.03 * 2 * Math.PI;
+            //noiseLevel = 0.0;
+            biasLevel = 0.03 * 2 * Math.PI;
+            //biasLevel = 0;
             biasTimeBeta = -0.994;
             biasDrift = getNoise(rnd, biasLevel);
         }
